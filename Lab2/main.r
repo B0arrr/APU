@@ -1,0 +1,10 @@
+library(data.tree)
+library(formattable)
+library(DiagrammeR)
+library(ahp)
+ahpFile <- "./Lab2/smartfony.ahp"
+ahpSmartfony <- Load(ahpFile)
+Visualize(ahpSmartfony)
+print(ahpSmartfony, filterFun = isNotLeaf)
+Calculate(ahpSmartfony)
+AnalyzeTable(ahpSmartfony)

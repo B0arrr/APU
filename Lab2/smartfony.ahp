@@ -1,0 +1,218 @@
+Version: 2.0
+
+#########################
+# Alternatives Section
+#
+
+Alternatives: &alternatives
+# Here, we list all the alternatives, together with their attributes.
+# We can use these attributes later in the file when defining
+# preferenceFunctions. The attributes can be quantitative or
+# qualitative.
+  P60 Pro:
+    wyswietlacz: 6.67
+    pamiec_RAM: 8
+    pamiec_wbudowana: 256
+    aparat_foto: 48
+    cena: 4499.0
+    liczba_opinii: 13
+    ocena_klienta: 4.3
+    status_opinii: mniej 50 opinii
+  Nova 11i:
+    wyswietlacz: 6.8
+    pamiec_RAM: 8
+    pamiec_wbudowana: 128
+    aparat_foto: 48
+    cena: 1019.0
+    liczba_opinii: 6
+    ocena_klienta: 4.8
+    status_opinii: mniej 50 opinii
+  Nova 11 Pro:
+    wyswietlacz: 6.78
+    pamiec_RAM: 8
+    pamiec_wbudowana: 256
+    aparat_foto: 50
+    cena: 2199.0
+    liczba_opinii: 2
+    ocena_klienta: 5.0
+    status_opinii: mniej 50 opinii
+  Mate 50 Pro:
+    wyswietlacz: 6.57
+    pamiec_RAM: 8
+    pamiec_wbudowana: 256
+    aparat_foto: 64
+    cena: 3499.0
+    liczba_opinii: 12
+    ocena_klienta: 5.0
+    status_opinii: mniej 50 opinii
+  Nova Y61:
+    wyswietlacz: 6.52
+    pamiec_RAM: 4
+    pamiec_wbudowana: 64
+    aparat_foto: 50
+    cena: 649.0
+    liczba_opinii: 2
+    ocena_klienta: 3.7
+    status_opinii: mniej 50 opinii
+  Nova 9:
+    wyswietlacz: 6.57
+    pamiec_RAM: 8
+    pamiec_wbudowana: 128
+    aparat_foto: 50
+    cena: 1249.0
+    liczba_opinii: 11
+    ocena_klienta: 4.8
+    status_opinii: mniej 50 opinii
+  Nova 10:
+    wyswietlacz: 6.67
+    pamiec_RAM: 8
+    pamiec_wbudowana: 128
+    aparat_foto: 50
+    cena: 1799.0
+    liczba_opinii: 6
+    ocena_klienta: 5.0
+    status_opinii: mniej 50 opinii
+  Nova 11:
+    wyswietlacz: 6.7
+    pamiec_RAM: 8
+    pamiec_wbudowana: 256
+    aparat_foto: 50
+    cena: 2599.0
+    liczba_opinii: 1
+    ocena_klienta: 4.0
+    status_opinii: mniej 50 opinii
+  Nova 8i:
+    wyswietlacz: 6.67
+    pamiec_RAM: 6
+    pamiec_wbudowana: 128
+    aparat_foto: 64
+    cena: 899.0
+    liczba_opinii: 11
+    ocena_klienta: 4.4
+    status_opinii: mniej 50 opinii
+  Nova Y90:
+    wyswietlacz: 6.7
+    pamiec_RAM: 6
+    pamiec_wbudowana: 128
+    aparat_foto: 50
+    cena: 1029.0
+    liczba_opinii: 8
+    ocena_klienta: 5.0
+    status_opinii: mniej 50 opinii
+
+#
+# End of Alternatives Section
+#####################################
+
+#####################################
+# Goal Section
+#
+
+
+Goal:
+  name: Kup telefon
+  preferences:
+    pairwise:
+      - [Wydajnosc, Jakosc, 5]
+      - [Wydajnosc, Styl, 9]
+      - [Wydajnosc, Cena, 7]
+      - [Jakosc, Styl, 9]
+      - [Jakosc, Cena, 5]
+      - [Styl, Cena, 1/7]
+  children:
+    Wydajnosc:
+      preferences:
+        pairwise:
+          - [Wyswietlacz, RAM, 1/7]
+          - [Wyswietlacz, Pamiec, 1/5]
+          - [RAM, Pamiec, 1]
+      children:
+        Wyswietlacz:
+          preferences:
+            pairwiseFunction:
+              GetDisplayPreference <- function(a1, a2) {
+                if (a1$wyswietlacz < a2$wyswietlacz) return (1/GetDisplayPreference(a2, a1));
+                difference <- a1$wyswietlacz - a2$wyswietlacz;
+                if(difference < 0.2) return (1);
+                if(difference < 0.5) return (5);
+                return (9);
+              }
+          children: *alternatives
+        RAM:
+          preferences:
+            pairwiseFunction:
+              GetRAMPreference <- function(a1, a2) {
+                if (a1$pamiec_RAM < a2$pamiec_RAM) return (1/GetRAMPreference(a2, a1));
+                difference <- a1$pamiec_RAM - a2$pamiec_RAM;
+                if(difference < 0.2) return (1);
+                if(difference < 0.5) return (5);
+                return (9);
+              }
+          children: *alternatives
+        Pamiec:
+          preferences:
+            pairwiseFunction:
+              GetMemoryPreference <- function(a1, a2) {
+                if (a1$pamiec_wbudowana < a2$pamiec_wbudowana) return (1/GetMemoryPreference(a2, a1));
+                difference <- a1$pamiec_wbudowana - a2$pamiec_wbudowana;
+                if(difference < 50) return (1);
+                if(difference < 100) return (5);
+                return (9);
+              }
+          children: *alternatives
+    Jakosc:
+      preferences:
+        pairwise:
+          - [Liczba_opinii, Ocena, 1/3]
+      children:
+        Liczba_opinii:
+          preferences:
+            pairwiseFunction:
+              GetOpinionsAmountPreference <- function(a1, a2) {
+                if (a1$liczba_opinii < a2$liczba_opinii) return (1/GetOpinionsAmountPreference(a2, a1));
+                difference <- a1$liczba_opinii - a2$liczba_opinii;
+                if(difference < 5) return (1);
+                if(difference < 10) return (3);
+                return (7);
+              }
+          children: *alternatives
+        Ocena:
+          preferences:
+            pairwiseFunction:
+              GetRatePreference <- function(a1, a2) {
+                if (a1$ocena_klienta < a2$ocena_klienta) return (1/GetRatePreference(a2, a1));
+                difference <- a1$ocena_klienta - a2$ocena_klienta;
+                if(difference < 1) return (1);
+                if(difference < 2) return (5);
+                return (7);
+              }
+          children: *alternatives
+    Styl:
+      preferences:
+        pairwiseFunction:
+          GetCameraPreference <- function(a1, a2) {
+            if (a1$aparat_foto < a2$aparat_foto) return (1/GetCameraPreference(a2, a1));
+            difference <- a1$aparat_foto - a2$aparat_foto;
+            if(difference < 5) return (1);
+            if(difference < 10) return (5);
+            return (9);
+          }
+      children: *alternatives
+    Cena:
+      preferences:
+        pairwiseFunction:
+          GetCostPreference <- function(a1, a2) {
+            if (a1$cena < a2$cena) return (1/GetCostPreference(a2, a1));
+            difference <- a1$cena - a2$cena;
+            if(difference < 100) return (1);
+            if(difference < 500) return (3);
+            if(difference < 1000) return (5);
+            return (9);
+          }
+      children: *alternatives
+
+
+
+#
+# End of Goal Section
+#####################################
